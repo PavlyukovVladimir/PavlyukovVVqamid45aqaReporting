@@ -1,5 +1,3 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/7qyu3pc2h9j4m8kj?svg=true)](https://ci.appveyor.com/project/PavlyukovVladimir/pavlyukovvvqamid45autotestingpatterns1)
-
 ***Павлюков Владимир Владимирович, группа*** **QAMID45**
 
 # Домашнее задание к занятию «2.3. Patterns»
@@ -65,61 +63,113 @@
 
 </details>
 
+## Задача №2: Report Portal (необязательная)
+
+<details><summary>Развернуть Задача №2: Report Portal (необязательная)</summary>
+
+Мы сразу предупреждаем, что это задача может оказаться очень сложной, так как мы вас поставим в такие условия, когда разбираться придётся самим. Будьте готовы к этому и в работе, ведь такое обязательно может случиться — кто-то решит попробовать использовать определённую технологию, а разбираться, настраивать и устанавливать всё вам придётся самостоятельно. Кроме того, что нужно будет разобраться, нужно ещё и задокументировать это для будущих поколений, чтобы они не тратили столько же времени, сколько потратите вы.
+
+При этом вы должны понимать, что в отличие от материалов курса, которые проверены его авторами, информация, содержащаяся в онлайн-источниках, может быть неполной, устаревшей и даже ошибочной.
+
+Что нужно сделать: попробовать интегрировать ваш проект тестирования доставки карт с Report Portal. Нам будет достаточно, если логи вашего теста будут отправляться в запущенный экземпляр Report Portal.
+
+Как это сделать: у вас есть несколько ссылок, с которых следует начать поиск:
+* https://reportportal.io/,
+* https://github.com/reportportal.
+
+В результате: обновляете ваш проект на GitHub для интеграции с Report Portal и выкладываете краткий manual в виде README.md, в котором описываете необходимые действия для воспроизведения вашей интеграции.
+
+<details>
+   <summary>Подсказка</summary>
+
+1. Достаточно часто разработчики решений предоставляют готовые Docker-файлы и даже docker-compose.yml, для того чтобы вы могли быстро развернуть сервис и попробовать его в действии.
+1. Часто такое бывает, что в официальном репозитории на GitHub выкладываются примеры интеграции. Возможно, стоит посмотреть там информацию о стеке используемых вами технологий, как минимум JUnit5.
+</details>
+</details>
+
+# Настройка репорт портала
+
+[Мануал](artifacts/manual.md).
+
 # Запуск тестов
 
-1. Убедиться, что в файле [Constants.java](java/ru/netology/data/Constants.java),
+1. Запустить сборку ReportPortal(Если не запустить, то тесты не будут обработаны в ReportPortal):
+```shell
+docker-compose -p reportportal up -d --force-recreate
+```
+2. Убедиться, что в файле [Constants.java](src/test/java/ru/netology/data/Constants.java),
 ```java
 public static final boolean PRE_TEST_PREPARATION = true;
 public static final boolean POST_TEST_PREPARATION = true;
 ```
-
-2. Запустить в терминале выполнение тестов:
-
+3. Запустить в терминале выполнение тестов:
 `./gradlew clean test`
+4. Отчеты:
+* [Просмотр отчета gradle](build/reports/tests/test/index.html)
+* [Просмотр allure отчета](build/reports/allure-report/allureReport/index.html)
+* Также результаты и история будут появляться в ReportPortal-е, в разделе «Launches».
+    * Открыть ReportPortal в браузере: по адресу http://localhost:8080/.
+    * Войти в учетную запись:
+      ```json
+      {
+         "login": "superadmin",
+         "password": "erebus"
+      }
+      ```
+    * Перейти на вкладку ![](artifacts/imgs/launces.png) `LAUNCHES`.
+5. Остановка ReportPortal:
+```shell
+docker stop $(docker ps --filter name=reportportal_ -q)
+```
 
-3. Запустить сборку отчета allure:
+<details><summary>Для тех кто любит чуть больше контроля:</summary>
 
-`./gradlew allureReport`
-
-4. [Просмотр отчета gradle(локальное выполнение тестов)](build/reports/tests/test/index.html)
-
-5. [Просмотр allure отчета](build/reports/allure-report/allureReport/index.html)
-
-<details><summary>Для тех кто любит больше контроля:</summary>
-
-1. Установить в файле [Constants.java](java/ru/netology/data/Constants.java),
+1. Запустить сборку ReportPortal:
+```shell
+docker-compose -p reportportal up -d --force-recreate
+```
+2. Установить в файле [Constants.java](src/test/java/ru/netology/data/Constants.java),
 ```java
 public static final boolean PRE_TEST_PREPARATION = false;
 public static final boolean POST_TEST_PREPARATION = false;
 ```
 
-2. Runs server:
+3. Runs server:
 ```sh
 java -jar artifacts/app-card-delivery.jar & echo $! > ./testserver.pid &
 ```
 (_id процесса сохраняется в файл, чтобы потом, если нужно, было проще вручную послать ему сигнал корректно завершиться_)
 
-_на удаленной машине эта команда будет чуть другая `java -jar ./artifacts/app-card-delivery.jar &`_
+4. Runs all tests: `./gradlew clean test`
 
-3. Runs all tests: `./gradlew clean test`
-
-_на удаленной машине эта команда тоже будет чуть другая `./gradlew test -Dselenide.headless=true --info`_
-
-4. Shut down the server
+5. Shut down the server
 ```sh
 kill -TERM $(cat ./testserver.pid)
 ```
 
-5. Отчеты:
+6. Отчеты:
 
-* [Просмотр отчета gradle(локальное выполнение тестов)](build/reports/tests/test/index.html)
-* [Просмотр отчета(appveyor выполнение тестов при push. Можно скачать архив отчета reports.zip, расположен на вкладке Artifacts)](https://ci.appveyor.com/project/PavlyukovVladimir/pavlyukovvvqamid45autotestingselenide/history)
+* [Просмотр отчета gradle](build/reports/tests/test/index.html)
 * Allure report:
-    * `./gradlew allureReport --clean` - generates an Allure report
+    * `./gradlew allureReport` - generates an Allure report
     * [Просмотр allure отчета](build/reports/allure-report/allureReport/index.html)
+    * Alternative allure report: `./gradlew allureServe` - generates an Allure report and opens it in the default browser
+* Также результаты и история будут появляться в ReportPortal-е, в разделе «Launches».
+  * Открыть ReportPortal в браузере: по адресу http://localhost:8080/.
+  * Войти в учетную запись:
+  ```json
+  {
+     "login": "superadmin",
+     "password": "erebus"
+  }
+  ```
+  * Перейти на вкладку ![](artifacts/imgs/launces.png) `LAUNCHES`.
 
+7. Остановка ReportPortal:
+```shell
+docker stop $(docker ps --filter name=reportportal_ -q)
+```
 
-* Alternative allure report: `./gradlew allureServe` - generates an Allure report and opens it in the default browser
 </details>
 
 # Багрепорты

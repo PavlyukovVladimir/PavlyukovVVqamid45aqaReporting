@@ -3,19 +3,29 @@ package ru.netology.tests;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.*;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.extension.ExtendWith;
 import ru.netology.data.Constants;
 import ru.netology.data.DataHelper;
 import ru.netology.pages.OrderCardDeliveryPage;
+import ru.netology.util.ScreenShooterReportPortalExtension;
 
 import java.text.ParseException;
 import java.util.Random;
 
+import static ru.netology.data.DataHelper.Exec.AllureControl.allureReportCreate;
 
+@ExtendWith({ScreenShooterReportPortalExtension.class})
 public class AppCardDeliveryTest {
     private static DataHelper.Exec.JarControl jarControl;
     private final String baseUrl = "http://localhost:9999";
+    private final String epicName = "Заказ банковских карт";
+    private final String featureName = "Формирование заказа банковской карты";
+    private final String replanningStoryName = "Перепланировка даты доставки банковской карты";
+    private final String orderFormStoryName = "Проверка формы заказа банковской карты";
+    private final String ownerName = "Павлюков Владимир";
     private OrderCardDeliveryPage page;
 
     @BeforeAll
@@ -35,6 +45,7 @@ public class AppCardDeliveryTest {
         SelenideLogger.removeListener("AllureSelenide");
         if (Constants.POST_TEST_PREPARATION) {
             jarControl.stop();
+            allureReportCreate();
         }
     }
 
@@ -48,8 +59,13 @@ public class AppCardDeliveryTest {
         page = new OrderCardDeliveryPage();
     }
 
-    @DisplayName("Позитивный тест, города подставляются случайно")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Позитивный тест, города подставляются случайно")
     void mainPositiveTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfo();
         page
@@ -58,8 +74,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(info.getDate());
     }
 
-    @DisplayName("Не заполнено поле город.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Не заполнено поле город.")
     void negativeEmptyCityTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutCity())
@@ -67,8 +88,13 @@ public class AppCardDeliveryTest {
                 .checkCitySubText("Поле обязательно для заполнения");
     }
 
-    @DisplayName("Город РФ не админ центр.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Город РФ не админ центр.")
     void negativeNotAdministrativeCenterCityTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutCity())
@@ -77,8 +103,13 @@ public class AppCardDeliveryTest {
                 .checkCitySubText("Доставка в выбранный город недоступна");
     }
 
-    @DisplayName("На день раньше допустимой даты.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("На день раньше допустимой даты.")
     void negativeEarlierByADayThanTheMinDateTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutDate())
@@ -87,8 +118,13 @@ public class AppCardDeliveryTest {
                 .checkDateSubText("Заказ на выбранную дату невозможен");
     }
 
-    @DisplayName("Минимально допустимая дата.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Минимально допустимая дата.")
     void minimumAllowedDayTest() {
         String dateStr = DataHelper.nowWithDaysShift(3);
         page
@@ -98,8 +134,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(dateStr);
     }
 
-    @DisplayName("На день позже допустимой даты.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("На день позже допустимой даты.")
     void dayLaterThanTheMinimumAllowedDayTest() {
         String dateStr = DataHelper.nowWithDaysShift(4);
         page
@@ -109,8 +150,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(dateStr);
     }
 
-    @DisplayName("Не заполненное поле даты.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Не заполненное поле даты.")
     void negativeEmptyDateTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutDate())
@@ -119,8 +165,13 @@ public class AppCardDeliveryTest {
                 .checkDateSubText("Неверно введена дата");
     }
 
-    @DisplayName("На год позже допустимой даты.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("На год позже допустимой даты.")
     void earLaterThanTheMinimumAllowedDayTest() {
         String dateStr = DataHelper.nowWithYearsShift(1);
         page
@@ -130,8 +181,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(dateStr);
     }
 
-    @DisplayName("Имя с ё.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Имя с ё.")
     void nameWithSmallYoTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutName();
         page
@@ -141,8 +197,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(info.getDate());
     }
 
-    @DisplayName("Имя с Ё.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Имя с Ё.")
     void nameWithLageYoTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutName();
         page
@@ -152,8 +213,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(info.getDate());
     }
 
-    @DisplayName("Имя с пробелами и тире.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Имя с пробелами и тире.")
     void nameWithDashesAndSpacesTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutName();
         page
@@ -163,8 +229,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(info.getDate());
     }
 
-    @DisplayName("Имя \"-\"")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.TRIVIAL)
+    @DisplayName("Имя \"-\"")
     void negativeNameDashTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutName())
@@ -173,8 +244,13 @@ public class AppCardDeliveryTest {
                 .checkNameSubText("В имени кроме тире должны быть буквы.");
     }
 
-    @DisplayName("Имя начинающееся на \"-\"")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.TRIVIAL)
+    @DisplayName("Имя начинающееся на \"-\"")
     void negativeNameWithFirstDashTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutName())
@@ -183,8 +259,13 @@ public class AppCardDeliveryTest {
                 .checkNameSubText("Имя не может начинаться на тире.");
     }
 
-    @DisplayName("Имя заканчивающееся на \"-\"")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.TRIVIAL)
+    @DisplayName("Имя заканчивающееся на \"-\"")
     void negativeNameWithLastDashTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutName())
@@ -193,8 +274,13 @@ public class AppCardDeliveryTest {
                 .checkNameSubText("Имя не может заканчиваться на тире.");
     }
 
-    @DisplayName("Не заполненное имя")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Не заполненное имя")
     void negativeEmptyNameTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutName())
@@ -202,8 +288,13 @@ public class AppCardDeliveryTest {
                 .checkNameSubText("Поле обязательно для заполнения");
     }
 
-    @DisplayName("Телефон не заполнен.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Телефон не заполнен.")
     void negativeEmptyPhoneTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutPhone())
@@ -211,8 +302,13 @@ public class AppCardDeliveryTest {
                 .checkPhoneSubText("Поле обязательно для заполнения");
     }
 
-    @DisplayName("Телефон короче.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Телефон короче.")
     void negativePhoneShortTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutPhone())
@@ -221,8 +317,13 @@ public class AppCardDeliveryTest {
                 .checkPhoneSubText("Телефон указан неверно. Должно быть 11 цифр, например, +79012345678.");
     }
 
-    @DisplayName("Без согласия на обработку персональных данных.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Без согласия на обработку персональных данных.")
     void negativeCheckboxTest() {
         page
                 .fillForm(DataHelper.getValidCardOrderInputInfoWithoutAgreement())
@@ -230,8 +331,13 @@ public class AppCardDeliveryTest {
                 .checkAgreementInvalidIndication();
     }
 
-    @DisplayName("Выбор даты на 7 дней позже текущей через виджет календаря.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.NORMAL)
+    @DisplayName("Выбор даты на 7 дней позже текущей через виджет календаря.")
     void calendarWidgetTest() throws ParseException {
         String dateStr = DataHelper.nowWithDaysShift(7);
         page
@@ -241,8 +347,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(dateStr);
     }
 
-    @DisplayName("Ввод города с помощью выпадающего списка.")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = orderFormStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.MINOR)
+    @DisplayName("Ввод города с помощью выпадающего списка.")
     void popupListTest() {
         String[] cities = DataHelper.getValidCities();
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutCity();
@@ -253,8 +364,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(info.getDate());
     }
 
-    @DisplayName("Перепланировка на ту же дату")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = replanningStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.TRIVIAL)
+    @DisplayName("Перепланировка на ту же дату")
     void replanningSameDateTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfo();
 
@@ -274,8 +390,13 @@ public class AppCardDeliveryTest {
         ;
     }
 
-    @DisplayName("Перепланировка на минимальную дату")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = replanningStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Перепланировка на минимальную дату")
     void replanningMinDateTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutDate();
         String dateStr = DataHelper.getValidDate();
@@ -299,8 +420,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(otherDateStr);
     }
 
-    @DisplayName("Перепланировка на день позднее")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = replanningStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Перепланировка на день позднее")
     void replanningOneDayLaterTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutDate();
         String dateStr = DataHelper.getValidDate();
@@ -324,8 +450,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(otherDateStr);
     }
 
-    @DisplayName("Перепланировка на дату позднее")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = replanningStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Перепланировка на дату позднее")
     void replanningLaterDateTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutDate();
         String dateStr = DataHelper.getValidDate();
@@ -349,8 +480,13 @@ public class AppCardDeliveryTest {
                 .checkNotificationMessage(otherDateStr);
     }
 
-    @DisplayName("Перепланировка на недоступную дату")
     @Test
+    @Epic(value = epicName)
+    @Feature(value = featureName)
+    @Story(value = replanningStoryName)
+    @Owner(value = ownerName)
+    @Severity(value = SeverityLevel.CRITICAL)
+    @DisplayName("Перепланировка на недоступную дату")
     void replanningNotAvailableDateTest() {
         DataHelper.CardOrderInputInfo info = DataHelper.getValidCardOrderInputInfoWithoutDate();
         String dateStr = DataHelper.getValidDate();
